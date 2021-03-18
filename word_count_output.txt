@@ -1,0 +1,8 @@
+masa -> 3
+televizyon -> 5
+defter -> 5
+kalemlik -> 4
+sandalye -> 5
+silgi -> 2
+canta -> 2
+kalem -> 4

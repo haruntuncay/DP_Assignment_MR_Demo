@@ -1,0 +1,5 @@
+A alanlar a de alıyor !
+B alanlar d de alıyor !
+C alanlar a de alıyor !
+D alanlar c de alıyor !
+E alanlar c de alıyor !
