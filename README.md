@@ -1,6 +1,6 @@
 # DP_Assignment_MR_Demo
 
-This project's goal is to simulate a really simple map-reduce framework. It's main entry point is the `Task` class, which be obtained using a `TaskBuilder`.
+This project's goal is to simulate a really simple map-reduce framework. It's main entry point is the `Task` class, which can be obtained using a `TaskBuilder`.
 A simple example of how TaskBuilder can be used is provided below.
 
 ```
