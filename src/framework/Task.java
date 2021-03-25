@@ -1,17 +1,16 @@
 package framework;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
-public class Task<I, K, V> {
+public class Task<I, K extends Comparable<K>, V> {
 
     private Supplier<I> supplier;
     private Mapper<I, K, V> mapper;
-    private Combiner<K, V> combiner;
     private Reducer<K, V> reducer;
 
-    private Task() {
-        this.combiner = new Combiner<>();
-    }
+    private Task() {}
 
     public void execute() {
         if(supplier == null)
@@ -23,16 +22,19 @@ public class Task<I, K, V> {
 
         I input;
         while((input = supplier.get()) != null) {
-            KeyValue<K, V> keyValue = mapper.map(input);
-            combiner.combine(keyValue);
+            mapper.map(input);
         }
 
-        for(Intermediary<K, V> intermediary : combiner) {
-            reducer.reduce(intermediary);
-        }
+        Combiner<K, V> combiner = new Combiner<>();
+        combiner.combine(mapper.getKeyValueList());
+
+        List<Intermediary<K, V>> intermediaries = combiner.getKeysToValuesList();
+        Collections.sort(intermediaries);
+
+        reducer.reduce(combiner.getKeysToValuesList());
     }
 
-    public static class Builder<I, K, V> {
+    public static class Builder<I, K extends Comparable<K>, V> {
 
         private final Task<I, K, V> task;
 

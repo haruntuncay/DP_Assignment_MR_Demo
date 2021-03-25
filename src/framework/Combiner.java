@@ -2,46 +2,34 @@ package framework;
 
 import java.util.*;
 
-class Combiner<K, V> implements Iterable<Intermediary<K, V>>{
+class Combiner<K extends Comparable<K>, V> {
 
     private final Map<K, List<V>> table;
+    private final List<Intermediary<K, V>> keysToValuesList;
+
 
     Combiner() {
         this.table = new HashMap<>();
+        this.keysToValuesList = new ArrayList<>();
     }
 
-    void combine(KeyValue<K, V> keyValue) {
-        K key = keyValue.getKey();
+    void combine(List<KeyValue<K, V>> keyValueList) {
+        for(KeyValue<K, V> keyValue : keyValueList) {
+            K key = keyValue.getKey();
 
-        if(!table.containsKey(key)) {
-            table.put(key, new ArrayList<>());
+            if(!table.containsKey(key)) {
+                table.put(key, new ArrayList<>());
+            }
+
+            table.get(key).add(keyValue.getValue());
         }
 
-        table.get(key).add(keyValue.getValue());
+        for(Map.Entry<K, List<V>> entry : table.entrySet()) {
+            keysToValuesList.add(new Intermediary<>(entry.getKey(), entry.getValue()));
+        }
     }
 
-    @Override
-    public Iterator<Intermediary<K, V>> iterator() {
-        return new CombinerIterator();
-    }
-
-    private class CombinerIterator implements Iterator<Intermediary<K, V>> {
-
-        private final Iterator<Map.Entry<K, List<V>>> tableIterator;
-
-        private CombinerIterator() {
-            tableIterator = table.entrySet().iterator();
-        }
-
-        @Override
-        public boolean hasNext() {
-            return tableIterator.hasNext();
-        }
-
-        @Override
-        public Intermediary<K, V> next() {
-            Map.Entry<K, List<V>> mapEntry = tableIterator.next();
-            return new Intermediary<>(mapEntry.getKey(), mapEntry.getValue());
-        }
+    List<Intermediary<K, V>> getKeysToValuesList() {
+        return keysToValuesList;
     }
 }

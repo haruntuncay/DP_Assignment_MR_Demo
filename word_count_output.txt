@@ -1,8 +1,8 @@
-masa -> 3
-televizyon -> 5
+canta -> 2
 defter -> 5
+kalem -> 4
 kalemlik -> 4
+masa -> 3
 sandalye -> 5
 silgi -> 2
-canta -> 2
-kalem -> 4
+televizyon -> 5

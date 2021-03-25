@@ -1,8 +1,9 @@
 package framework;
 
+import java.util.List;
 import java.util.function.Consumer;
 
-public class Reducer<K, V> {
+public class Reducer<K extends Comparable<K>, V> {
 
     private final Consumer<Intermediary<K, V>> consumer;
 
@@ -10,7 +11,8 @@ public class Reducer<K, V> {
         this.consumer = consumer;
     }
 
-    void reduce(Intermediary<K, V> intermediary){
-        consumer.accept(intermediary);
+    void reduce(List<Intermediary<K, V>> intermediaryValues){
+        for(Intermediary<K, V> intermediary : intermediaryValues)
+            consumer.accept(intermediary);
     }
 }
