@@ -1,4 +1,4 @@
-# DP_Assignment_MR_Demo
+# DP Assignment MR Demo
 
 This project's goal is to simulate a really simple map-reduce framework. It's main entry point is the `Task` class, which can be obtained using a `TaskBuilder`.
 A simple example of how TaskBuilder can be used is provided below.
@@ -11,9 +11,10 @@ A simple example of how TaskBuilder can be used is provided below.
 
 Task<String, Character, Character> recommendationTask =
           new Task.Builder<String, Character, Character>()
-              .supply(Supplier<I>)
-              .map(Mapper<I, K, V>)
-              .reduce(Reducer<K, V>)
+              .supply(Supplier<I>)                                                   // where to get the values
+              .map(Function<I, KeyValue<K, V>> mapperFunction)                       // the mapping function to apply on input
+              .reduce(Function<Intermediary<K, V>, KeyValue<K, V>> reducerFunction)  // how to reduce a given Key and its Values
+              .consume(Consumer<KeyValue<K, V>> resultConsumer)                      // consume the final result
               .build();
 
       recommendationTask.execute();

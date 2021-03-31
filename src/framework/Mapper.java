@@ -3,22 +3,24 @@ package framework;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class Mapper<I, K, V> {
+public class Mapper<I, K extends Comparable<K>, V> {
 
-    private final Function<I, KeyValue<K, V>> function;
-    private List<KeyValue<K, V>> keyValueList;
+    private Function<I, KeyValue<K, V>> mapperFunction;
 
-    public Mapper(Function<I, KeyValue<K, V>> function) {
-        this.function = function;
-        this.keyValueList = new ArrayList<>();
+    public Mapper(Function<I, KeyValue<K, V>> mapperFunction) {
+        this.mapperFunction = mapperFunction;
     }
 
-    void map(I input) {
-        keyValueList.add(function.apply(input));
-    }
+    List<KeyValue<K, V>> map(Supplier<I> inputSupplier)  {
+        List<KeyValue<K, V>> keyValueList = new ArrayList<>();
 
-    List<KeyValue<K, V>> getKeyValueList() {
+        I input;
+        while((input = inputSupplier.get()) != null) {
+            keyValueList.add(mapperFunction.apply(input));
+        }
+
         return keyValueList;
     }
 }

@@ -1,35 +1,43 @@
 package framework;
 
 import java.util.*;
+import java.util.function.Function;
 
 class Combiner<K extends Comparable<K>, V> {
 
-    private final Map<K, List<V>> table;
-    private final List<Intermediary<K, V>> keysToValuesList;
+    private Function<Intermediary<K, V>, KeyValue<K, V>> reducerFunction;
 
-
-    Combiner() {
-        this.table = new HashMap<>();
-        this.keysToValuesList = new ArrayList<>();
+    public Combiner(Function<Intermediary<K, V>, KeyValue<K, V>> reducerFunction) {
+        this.reducerFunction = reducerFunction;
     }
 
-    void combine(List<KeyValue<K, V>> keyValueList) {
-        for(KeyValue<K, V> keyValue : keyValueList) {
-            K key = keyValue.getKey();
+    List<KeyValue<K, V>> combine(List<KeyValue<K, V>> mapperInput) {
+        List<KeyValue<K, V>> keyValueList = new ArrayList<>();
 
-            if(!table.containsKey(key)) {
-                table.put(key, new ArrayList<>());
+        KeyValue<K, V> keyValue = mapperInput.get(0);
+        List<V> values = new ArrayList<>();
+        values.add(keyValue.getValue());
+
+        for(int i = 1; i < mapperInput.size(); i++) {
+            KeyValue<K, V> keyValueTemp = mapperInput.get(i);
+            if(keyValue.getKey().equals(keyValueTemp.getKey())) {
+                values.add(keyValueTemp.getValue());
+            } else {
+                Intermediary<K, V> reducerInput = new Intermediary<>(keyValue.getKey(), new ArrayList<>(values));
+
+                values.clear();
+                keyValue = keyValueTemp;
+                values.add(keyValue.getValue());
+
+                KeyValue<K, V> output = reducerFunction.apply(reducerInput);
+                keyValueList.add(output);
             }
-
-            table.get(key).add(keyValue.getValue());
         }
 
-        for(Map.Entry<K, List<V>> entry : table.entrySet()) {
-            keysToValuesList.add(new Intermediary<>(entry.getKey(), entry.getValue()));
-        }
-    }
+        Intermediary<K, V> reducerInput = new Intermediary<>(keyValue.getKey(), new ArrayList<>(values));
+        KeyValue<K, V> output = reducerFunction.apply(reducerInput);
+        keyValueList.add(output);
 
-    List<Intermediary<K, V>> getKeysToValuesList() {
-        return keysToValuesList;
+        return keyValueList;
     }
 }

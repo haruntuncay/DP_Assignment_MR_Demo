@@ -1,6 +1,6 @@
 package framework;
 
-public class KeyValue<K, V> {
+public class KeyValue<K extends Comparable<K>, V> {
 
     private final K key;
     private final V value;
@@ -10,11 +10,11 @@ public class KeyValue<K, V> {
         this.value = value;
     }
 
-    K getKey() {
+    public K getKey() {
         return key;
     }
 
-    V getValue() {
+    public V getValue() {
         return value;
     }
 }

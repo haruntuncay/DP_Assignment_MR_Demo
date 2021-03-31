@@ -22,8 +22,9 @@ public class RecommendationExample {
         Task<String, Character, Character> recommendationTask =
                 new Task.Builder<String, Character, Character>()
                     .supply(this::get)
-                    .map(new Mapper<>(this::mapper))
-                    .reduce(new Reducer<>(this::reducer))
+                    .map(this::mapper)
+                    .reduce(this::reducer)
+                    .consume(this::consumer)
                     .build();
 
         recommendationTask.execute();
@@ -41,24 +42,28 @@ public class RecommendationExample {
         return new KeyValue<>(parts[0].charAt(0), parts[1].charAt(0));
     }
 
-    public void reducer(Intermediary<Character, Character> intermediary) {
-        try {
-            String format = "%s alanlar %s de alıyor !\n";
+    public KeyValue<Character, Character> reducer(Intermediary<Character, Character> intermediary) {
 
-            int[] freq = new int[26];
-            int maxCount = 0, mostFreqIdx = 0;
+        int[] freq = new int[26];
+        int maxCount = 0, mostFreqIdx = 0;
 
-            for(Character val : intermediary.getValueList()) {
-                int idx = val - 'a';
+        for(Character val : intermediary.getValueList()) {
+            int idx = val - 'a';
 
-                freq[idx]++;
-                if(freq[idx] > maxCount) {
-                    maxCount = freq[idx];
-                    mostFreqIdx = idx;
-                }
+            freq[idx]++;
+            if(freq[idx] > maxCount) {
+                maxCount = freq[idx];
+                mostFreqIdx = idx;
             }
+        }
 
-            writer.write(String.format(format, intermediary.getKey(), (char) (mostFreqIdx + 'a')));
+        return new KeyValue<>(intermediary.getKey(), (char) (mostFreqIdx + 'a'));
+    }
+
+    public void consumer(KeyValue<Character, Character> result) {
+        String format = "%s alanlar %s de alıyor !\n";
+        try {
+            writer.write(String.format(format, result.getKey(), result.getValue()));
         } catch(IOException ex) {
             ex.printStackTrace();
         }

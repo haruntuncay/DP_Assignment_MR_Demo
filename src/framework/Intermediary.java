@@ -4,8 +4,10 @@ import java.util.List;
 
 public class Intermediary<K extends Comparable<K>, V> implements Comparable<Intermediary<K, V>> {
 
-    private final K key;
-    private final List<V> valueList;
+    private K key;
+    private List<V> valueList;
+
+    public Intermediary() { }
 
     public Intermediary(K key, List<V> valueList) {
         this.key = key;

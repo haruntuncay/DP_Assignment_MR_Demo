@@ -22,8 +22,9 @@ public class WordCountExample {
         Task<String, String, Integer> wordCountTask =
                 new Task.Builder<String, String, Integer>()
                         .supply(this::get)
-                        .map(new Mapper<>(this::mapper))
-                        .reduce(new Reducer<>(this::reducer))
+                        .map(this::mapper)
+                        .reduce(this::reducer)
+                        .consume(this::consumer)
                         .build();
 
         wordCountTask.execute();
@@ -40,12 +41,18 @@ public class WordCountExample {
         return new KeyValue<>(input, 1);
     }
 
-    public void reducer(Intermediary<String, Integer> intermediary) {
+    public KeyValue<String, Integer> reducer(Intermediary<String, Integer> intermediary) {
+        int freq = 0;
+        for(int i : intermediary.getValueList())
+            freq += i;
+
+        return new KeyValue<>(intermediary.getKey(), freq);
+    }
+
+    public void consumer(KeyValue<String, Integer> result) {
         try {
             String format = "%s -> %d\n";
-            int freq = intermediary.getValueList().size();
-
-            writer.write(String.format(format, intermediary.getKey(), freq));
+            writer.write(String.format(format, result.getKey(), result.getValue()));
         } catch(IOException ex) {
             ex.printStackTrace();
         }
